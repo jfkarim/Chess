@@ -111,57 +111,132 @@ class Chess
 
     case type
     when 'Q'
-      (collision_check(VERTICALS, piece) +
-      collision_check(DIAGONALS, piece) +
-      collision_check(HORIZONTALS, piece)) &
+      collision_check_vertical(piece) +
+      collision_check_diagonal(piece) +
+      collision_check_horizontal(piece) &
       raw_possible_moves
-      #add them together
     when 'K'
-      (collision_check(VERTICALS, piece) +
-      collision_check(DIAGONALS, piece) +
-      collision_check(HORIZONTALS, piece)) &
+      collision_check_vertical(piece) +
+      collision_check_diagonal(piece) +
+      collision_check_horizontal(piece) &
       raw_possible_moves
     when 'R'
-      (collision_check(VERTICALS, piece) +
-      collision_check(HORIZONTALS, piece)) &
+      collision_check_vertical(piece) +
+      collision_check_horizontal(piece) &
       raw_possible_moves
     when 'B'
-      collision_check(DIAGONALS, piece) &
+      collision_check_diagonal(piece) &
       raw_possible_moves
     when 'p'
-      debugger
       # May work, need to add diagonals in pawn's constants
-      (collision_check(VERTICALS, piece) +
-      collision_check(DIAGONALS, piece)) &
-      raw_possible_moves
+      # Took out diagonal call, correctly returns move
+            debugger
+      # collision_check_diagonal(piece) +
+      collision_check_vertical(piece) & raw_possible_moves
     end
   end
 
-  def collision_check(constant, piece)
+  #Broke into directional collision_checks
+
+  def collision_check_vertical (piece)
+
     valids = []
-    new_constant = []
 
     current_row, current_col = piece.start_pos
 
-    constant.each do |(d_row, d_col)|
-      possible_move = [current_row + d_row, current_col + d_col]
-      new_constant << possible_move if within_board?(possible_move)
+    row = piece.start_pos[0] + 1
+
+    until game_board[row,current_col].occupied? || !within_board?([row,current_col])
+      tile = game_board[row,current_col]
+      valids << [row,current_col] unless tile.occupied?
+      row += 1
     end
 
+    row = piece.start_pos[0] - 1
 
-    new_constant.each do |pos|
-      tile = game_board[pos[0],pos[1]]
-      valids << pos unless tile.occupied?
-      if tile.occupied? && tile.piece.color != current_player.color
-        valids << pos
-        break
-      else
-        break
-      end
+    until game_board[row,current_col].occupied? || !within_board?([row,current_col])
+      tile = game_board[row,current_col]
+      valids << [row,current_col] unless tile.occupied?
+      row -= 1
     end
 
     valids
+  end
 
+  def collision_check_horizontal (piece)
+
+    valids = []
+
+    current_row, current_col = piece.start_pos
+
+    col = piece.start_pos[1] + 1
+
+    until game_board[current_row, col].occupied? || !within_board?([row,current_col])
+      tile = game_board[row,current_col]
+      valids << [row,current_col] unless tile.occupied?
+      col += 1
+    end
+
+    col = piece.start_pos[1] - 1
+
+    until game_board[current_row, col].occupied? || !within_board?([row,current_col])
+      tile = game_board[row,current_col]
+      valids << [row,current_col] unless tile.occupied?
+      col -= 1
+    end
+
+    valids
+  end
+
+  def collision_check_diagonal (piece)
+
+    valids = []
+
+    current_row, current_col = piece.start_pos
+
+    row = piece.start_pos[1] + 1
+    col = piece.start_pos[1] + 1
+
+
+    until game_board[current_row, col].occupied? || !within_board?([row,current_col])
+      tile = game_board[row,col]
+      valids << [row, col] unless tile.occupied?
+      row += 1
+      col += 1
+    end
+
+    row = piece.start_pos[1] - 1
+    col = piece.start_pos[1] - 1
+
+    until game_board[current_row, col].occupied? || !within_board?([row,current_col])
+      tile = game_board[row,col]
+      valids << [row,col] unless tile.occupied?
+      row += 1
+      col += 1
+    end
+
+    row = piece.start_pos[1] + 1
+    col = piece.start_pos[1] - 1
+
+    until game_board[current_row, col].occupied? || !within_board?([row,current_col])
+      tile = game_board[row,col]
+      valids << [row,col] unless tile.occupied?
+      row += 1
+      col -= 1
+    end
+
+    row = piece.start_pos[1] - 1
+    col = piece.start_pos[1] + 1
+
+    until game_board[current_row, col].occupied? || !within_board?([row,current_col])
+      tile = game_board[row,col]
+      valids << [row,col] unless tile.occupied?
+      row -= 1
+      col += 1
+
+    end
+
+    valids
   end
 
   def within_board?(possible_move)
