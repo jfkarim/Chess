@@ -6,6 +6,15 @@ class Piece
     self.type = type #Symbol used to refer to piece on the board
     self.start_pos = start_pos
     self.move_increments = move_increments #array of possible moves, i.e.,
+    self.moved = false
+  end
+
+  def moved?
+    self.moved
+  end
+
+  def =moved?(boolean)
+    self.moved? = boolean
   end
 
   def raw_possible_moves(start_pos)
