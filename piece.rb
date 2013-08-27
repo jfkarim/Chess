@@ -7,6 +7,7 @@ class Piece
     self.start_pos = start_pos
     self.move_increments = move_increments #array of possible moves, i.e.,
     self.moved = false
+    self.color = color
   end
 
   # def moved?
