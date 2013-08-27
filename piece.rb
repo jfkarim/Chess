@@ -1,21 +1,21 @@
 class Piece
 
-  attr_accessor :type, :start_pos, :move_possibilities, :color
+  attr_accessor :type, :start_pos, :move_increments, :color, :moved
 
-  def initialize(type, start_pos, move_possibilities, color=nil)
+  def initialize(type, start_pos, move_increments, color=nil)
     self.type = type #Symbol used to refer to piece on the board
     self.start_pos = start_pos
     self.move_increments = move_increments #array of possible moves, i.e.,
     self.moved = false
   end
 
-  def moved?
-    self.moved
-  end
-
-  def =moved?(boolean)
-    self.moved? = boolean
-  end
+  # def moved?
+  #   self.moved
+  # end
+  #
+  # def =moved?(boolean)
+  #   self.moved? = boolean
+  # end
 
   def raw_possible_moves(start_pos)
     raw_possible_moves = []
