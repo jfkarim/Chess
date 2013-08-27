@@ -1,3 +1,4 @@
+
 class HumanPlayer #< Player
 
   attr_accessor :name, :attr_reader, :color
@@ -35,6 +36,3 @@ class HumanPlayer #< Player
   end
 
 end
-
-h = HumanPlayer.new
-h.get_origin

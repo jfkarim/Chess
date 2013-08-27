@@ -1,3 +1,4 @@
+require 'colorize'
 require_relative 'tile'
 require_relative 'piece'
 require_relative 'pawn'
@@ -6,7 +7,8 @@ require_relative 'knight'
 require_relative 'bishop'
 require_relative 'queen'
 require_relative 'king'
-require 'colorize'
+
+
 
 class Board
 
@@ -24,6 +26,8 @@ class Board
                     'K' => [[7,3], [0,3]]
                   }
 
+  attr_accessor :threatened_by_white, :threatened_by_black
+
   def initialize()
     @board = []
     8.times { @board << Array.new(8) { Tile.new } }
@@ -32,6 +36,14 @@ class Board
 
   def [](row, col)
     @board[row][col]
+  end
+
+  def temp_board
+    @board.each do |row|
+      row.each do |tile|
+        tile.dup
+      end
+    end
   end
 
   def populate_board

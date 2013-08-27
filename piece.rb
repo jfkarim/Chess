@@ -1,4 +1,13 @@
+
 class Piece
+
+  DIAGONALS = (-7...8).
+              to_a.map{ |row_coord| [row_coord, row_coord] } + (-7...8).
+              to_a.map{ |row_coord| [row_coord, -row_coord] }
+
+  HORIZONTALS = (-7...8).to_a.map{ |col_coord| [0, col_coord] }
+
+  VERTICALS = (-7...8).to_a.map{ |row_coord| [row_coord, 0] }
 
   attr_accessor :type, :start_pos, :move_increments, :color, :moved
 
@@ -27,12 +36,15 @@ class Piece
 
       possible_move = [current_row + d_row, current_col + d_col]
 
-      raw_possible_moves << new_pos
+      raw_possible_moves << possible_move if within_board?(possible_move)
       #need to check if pieces in way, pos move on board, and if king check
     end
-
-    valid_moves
+    raw_possible_moves
   end
 
-
+  private
+  def within_board?(possible_move)
+    p "possible_move is  #{possible_move}"
+    (0..7).to_a.include?(possible_move[0]) && (0..7).to_a.include?(possible_move[1])
+  end
 end
