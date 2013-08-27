@@ -26,13 +26,13 @@ class HumanPlayer #< Player
   def get_origin
     puts "Where would you like to move your piece from?"
     origin = gets.chomp
-    origin =~ /[1-8],[1-8]/ ? origin = origin.split(',') : get_origin
+    origin =~ /[1-8],[1-8]/ ? origin = origin.split(',').map { |int| int.to_i } : get_origin
   end
 
   def get_destination
     puts "Where would you like to move to?"
     destination = gets.chomp
-    destination =~ /[1-8],[1-8]/ ? destination = destination.split(',') : get_destination
+    destination =~ /[1-8],[1-8]/ ? destination = destination.split(',').map { |int| int.to_i }  : get_destination
   end
 
 end

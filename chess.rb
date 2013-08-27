@@ -2,17 +2,19 @@
 require_relative 'humanplayer'
 
 require_relative 'board'
+require 'debugger'
 
 
 class Chess
 
-  DIAGONALS = (0...8).
-              to_a.map{ |row_coord| [row_coord, row_coord] } + (0...8).
-              to_a.map{ |row_coord| [7 - row_coord, row_coord] }
+  DIAGONALS = (-7...8).
+              to_a.map{ |row_coord| [row_coord, row_coord] } + (-7...8).
+              to_a.map{ |row_coord| [row_coord, -row_coord] }
 
-  HORIZONTALS = (0...8).to_a.map{ |col_coord| [0, col_coord] }
+  HORIZONTALS = (-7...8).to_a.map{ |col_coord| [0, col_coord] }
 
-  VERTICALS = (0...8).to_a.map{ |row_coord| [row_coord, 0] }
+  VERTICALS = (-7...8).to_a.map{ |row_coord| [row_coord, 0] }
+
 
   attr_accessor :game_board, :current_player, :player1, :player2
 
@@ -56,20 +58,23 @@ class Chess
 
     @game_board.populate_board
 
-    until win?
+ #   until win?
       turn
-    end
+      turn
+      turn
+ #   end
 
-    play_again?
+ #   play_again?
   end
 
   def move
     request_coordinates = current_player.request_inputs
     origin = request_coordinates[0]
     destination = request_coordinates[1]
-    chosen_tile = @game_board[origin[0]][origin[1]]
-    make_move(origin, destination) if valid?(origin, destination, tile)
-    win?
+    chosen_tile = @game_board[origin[0], origin[1]]
+    puts valid?(origin, destination, chosen_tile)
+    make_move(origin, destination) if valid?(origin, destination, chosen_tile)
+    puts @game_board.display_board
   end
 
   def turn
@@ -82,54 +87,70 @@ class Chess
   def make_move(origin, destination)
     temp = @game_board[origin[0]][origin[1]].piece.dup
     @game_board[destination[0]][destination[1]].piece = temp
+    puts "Dest: #{@game_board[origin[0]][origin[1]].piece}"
+    puts "Dest: #{@game_board[destination[0]][destination[1]].piece}"
     @game_board[origin[0]][origin[1]].piece = nil
   end
 
   def valid?(origin, destination, tile)
+
     if tile.piece != nil
 
       piece = tile.piece
       raw_possible_moves = piece.raw_possible_moves(origin)
 
-      if valid_moves(raw_possible_moves, piece.type, piece.color).include? (destination)
+      if valid_moves(raw_possible_moves, piece).include? (destination)
         return true
       end
     end
     false
   end
 
-  def valid_moves(raw_possible_moves, type, color)
+  def valid_moves(raw_possible_moves, piece)
+    type = piece.type
+
     case type
     when 'Q'
-      (collision_check(VERTICALS, type, color) +
-      collision_check(DIAGONALS, type, color) +
-      collision_check(HORIZONTALS, type, color)) &
+      (collision_check(VERTICALS, piece) +
+      collision_check(DIAGONALS, piece) +
+      collision_check(HORIZONTALS, piece)) &
       raw_possible_moves
       #add them together
     when 'K'
-      (collision_check(VERTICALS, type, color) +
-      collision_check(DIAGONALS, type, color) +
-      collision_check(HORIZONTALS, type, color)) &
+      (collision_check(VERTICALS, piece) +
+      collision_check(DIAGONALS, piece) +
+      collision_check(HORIZONTALS, piece)) &
       raw_possible_moves
     when 'R'
-      (collision_check(VERTICALS, type, color) +
-      collision_check(HORIZONTALS, type, color)) &
+      (collision_check(VERTICALS, piece) +
+      collision_check(HORIZONTALS, piece)) &
       raw_possible_moves
     when 'B'
-      collision_check(DIAGONALS, type, color) &
+      collision_check(DIAGONALS, piece) &
       raw_possible_moves
     when 'p'
+      debugger
       # May work, need to add diagonals in pawn's constants
-      (collision_check(VERTICALS, type, color) +
-      collision_check(DIAGONALS, type, color)) &
+      (collision_check(VERTICALS, piece) +
+      collision_check(DIAGONALS, piece)) &
       raw_possible_moves
+    end
   end
 
-  def collision_check(constant, type, color)
+  def collision_check(constant, piece)
     valids = []
+    new_constant = []
 
-    constant.each do |pos|
-      tile = game_board[pos[0]][pos[1]]
+    current_row, current_col = piece.start_pos
+
+    constant.each do |(d_row, d_col)|
+      possible_move = [current_row + d_row, current_col + d_col]
+      new_constant << possible_move if within_board?(possible_move)
+    end
+
+
+    new_constant.each do |pos|
+      tile = game_board[pos[0],pos[1]]
       valids << pos unless tile.occupied?
       if tile.occupied? && tile.piece.color != current_player.color
         valids << pos
@@ -143,6 +164,11 @@ class Chess
 
   end
 
+  def within_board?(possible_move)
+    p "possible_move is  #{possible_move}"
+    (0..7).to_a.include?(possible_move[0]) && (0..7).to_a.include?(possible_move[1])
+  end
+
   private
 
   def change_current_player
@@ -151,6 +177,8 @@ class Chess
 end
 
 c = Chess.new
+c.set_players
+c.play
 # c.set_players
 # p c.player1.color
 # p c.player2.color

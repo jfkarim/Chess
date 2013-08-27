@@ -84,9 +84,8 @@ class Board
 
 end
 
-b = Board.new
-t = Tile.new
-t.piece = Pawn.new([1,1], "white")
-puts t.piece
-b.populate_board
-puts b.display_board
+# b = Board.new
+# t = Tile.new
+# t.piece = Pawn.new([1,1], "white")
+# puts t.piece
+# b.populate_board

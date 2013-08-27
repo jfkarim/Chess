@@ -42,9 +42,9 @@ class Piece
     raw_possible_moves
   end
 
-  private
   def within_board?(possible_move)
     p "possible_move is  #{possible_move}"
     (0..7).to_a.include?(possible_move[0]) && (0..7).to_a.include?(possible_move[1])
   end
+
 end
