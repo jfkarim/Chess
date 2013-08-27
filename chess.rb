@@ -64,9 +64,11 @@ class Chess
   end
 
   def move
-    current_player.request_inputs
-    valid?(request_inputs)
-    make_move
+    request_coordinates = current_player.request_inputs
+    origin = request_coordinates[0]
+    destination = request_coordinates[1]
+    chosen_tile = @game_board[origin[0]][origin[1]]
+    make_move(origin, destination) if valid?(origin, destination, tile)
     win?
   end
 
@@ -76,6 +78,25 @@ class Chess
   end
 
   # METHODS RELATED TO MOVEMENT CALCULATION
+
+  def make_move(origin, destination)
+    temp = @game_board[origin[0]][origin[1]].piece.dup
+    @game_board[destination[0]][destination[1]].piece = temp
+    @game_board[origin[0]][origin[1]].piece = nil
+  end
+
+  def valid?(origin, destination, tile)
+    if tile.piece != nil
+
+      piece = tile.piece
+      raw_possible_moves = piece.raw_possible_moves(origin)
+
+      if valid_moves(raw_possible_moves, piece.type, piece.color).include? (destination)
+        return true
+      end
+    end
+    false
+  end
 
   def valid_moves(raw_possible_moves, type, color)
     case type

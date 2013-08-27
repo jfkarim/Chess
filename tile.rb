@@ -11,11 +11,6 @@ class Tile
     return !piece.nil?
   end
 
-  def occupied_by_who
-    if occupied?
-      piece.type
-    end
-  end
 
 
 end
