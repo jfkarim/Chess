@@ -7,7 +7,7 @@ class Bishop < Piece
                   to_a.map{|x_coord| [x_coord, -x_coord]}
 
   def initialize (start_pos, color=nil)
-    super("B", start_pos, MOVE_INCREMENT, color=nil)
+    super("B", start_pos, MOVE_INCREMENT, color)
   end
 
 end

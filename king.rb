@@ -6,7 +6,7 @@ class King < Piece
                     [0,-1], [-1,0], [-1,-1], [-1,1]]
 
   def initialize (start_pos, color=nil)
-    super("K", start_pos, MOVE_INCREMENT, color=nil)
+    super("K", start_pos, MOVE_INCREMENT, color)
   end
 
 end

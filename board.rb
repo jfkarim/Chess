@@ -6,6 +6,7 @@ require_relative 'knight'
 require_relative 'bishop'
 require_relative 'queen'
 require_relative 'king'
+require 'colorize'
 
 class Board
 
@@ -39,25 +40,35 @@ class Board
     PIECE_INITIALS.each do |key, value|
       case key
         when 'p'
-          value.each { |row, col| @board[row][col].piece = Pawn.new([row, col], color?(row)) }
+          value.each { |row, col| @board[row][col].piece = Pawn.new([row, col], initial_color?(row)) }
         when 'R'
-          value.each { |row, col| @board[row][col].piece = Rook.new([row, col], color?(row)) }
+          value.each { |row, col| @board[row][col].piece = Rook.new([row, col], initial_color?(row)) }
         when 'N'
-          value.each { |row, col| @board[row][col].piece = Knight.new([row, col], color?(row)) }
+          value.each { |row, col| @board[row][col].piece = Knight.new([row, col], initial_color?(row)) }
         when 'B'
-          value.each { |row, col| @board[row][col].piece = Bishop.new([row, col], color?(row)) }
+          value.each { |row, col| @board[row][col].piece = Bishop.new([row, col], initial_color?(row)) }
         when 'Q'
-          value.each { |row, col| @board[row][col].piece = Queen.new([row, col], color?(row)) }
+          value.each { |row, col| @board[row][col].piece = Queen.new([row, col], initial_color?(row)) }
         when 'K'
-          value.each { |row, col| @board[row][col].piece = King.new([row, col], color?(row)) }
+          value.each { |row, col| @board[row][col].piece = King.new([row, col], initial_color?(row)) }
        end
      end
    end
 
-  def color? (row)
-    return "white" if row < 3
-    "black"
+  def initial_color? (row)
+    return 'white' if row < 3
+    'black'
   end
+
+  def display_board
+    display = @board.map  { |row| '|' + row.map {|tile| tile.occupied? ? color_icon(tile.piece) : '_'}.join('|') + '|' }
+    ["_________________"] + display + ["_________________"]
+  end
+
+  def color_icon(piece)
+    piece.color == 'white' ? piece.type.red : piece.type.blue
+  end
+
 
 end
 
@@ -66,4 +77,4 @@ t = Tile.new
 t.piece = Pawn.new([1,1], "white")
 puts t.piece
 b.populate_board
-p b
+puts b.display_board

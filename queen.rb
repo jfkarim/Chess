@@ -9,7 +9,7 @@ class Queen < Piece
                     to_a.map{|y_coord| [0, y_coord]}.delete([0,0])
 
   def initialize (start_pos, color=nil)
-    super("Q", start_pos, MOVE_INCREMENT, color=nil)
+    super("Q", start_pos, MOVE_INCREMENT, color)
   end
 
 end

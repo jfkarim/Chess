@@ -6,7 +6,7 @@ class Knight < Piece
                     [1,-2], [1,2], [2,-1], [2,1]]
 
   def initialize (start_pos, color=nil)
-    super("N", start_pos, MOVE_INCREMENT, color=nil)
+    super("N", start_pos, MOVE_INCREMENT, color)
   end
 
 end

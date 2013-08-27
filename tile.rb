@@ -5,10 +5,17 @@ class Tile
     self.piece = piece
   end
 
-  def occupied_by_who
-    #see's who's on the tile
-    piece.color
-    piece.type
+
+  def occupied?
+    return !piece.nil?
   end
+
+  def occupied_by_who
+    if occupied?
+      piece.color
+      piece.type
+    end
+  end
+
 
 end
