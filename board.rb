@@ -55,20 +55,20 @@ class Board
      end
    end
 
-  def initial_color? (row)
-    return 'white' if row < 3
-    'black'
-  end
-
   def display_board
     display = @board.map  { |row| '|' + row.map {|tile| tile.occupied? ? color_icon(tile.piece) : '_'}.join('|') + '|' }
     ["_________________"] + display + ["_________________"]
   end
 
+  private
+  def initial_color? (row)
+    return 'white' if row < 3
+    'black'
+  end
+
   def color_icon(piece)
     piece.color == 'white' ? piece.type.red : piece.type.blue
   end
-
 
 end
 

@@ -12,7 +12,6 @@ class Tile
 
   def occupied_by_who
     if occupied?
-      piece.color
       piece.type
     end
   end
