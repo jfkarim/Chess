@@ -16,7 +16,10 @@ class Tile
     piece.color != color
   end
 
-
+  def occupied_by_teammate?(color)
+    return false if piece.nil?
+    piece.color == color
+  end
 
 
 

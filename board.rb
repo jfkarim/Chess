@@ -26,11 +26,13 @@ class Board
                     'K' => [[7,3], [0,3]]
                   }
 
-  attr_accessor :threatened_by_white, :threatened_by_black
+  attr_accessor :black_piece_count, :white_piece_count, :threatened_by_white, :threatened_by_black
 
   def initialize()
     @board = []
     8.times { @board << Array.new(8) { Tile.new } }
+    @black_piece_count = []
+    @white_piece_count = []
   end
 
 
@@ -65,12 +67,32 @@ class Board
           value.each { |row, col| @board[row][col].piece = King.new([row, col], initial_color?(row)) }
        end
      end
+     piece_counter('black')
+     piece_counter('white')
    end
 
   def display_board
     letters = ('A'..'H').to_a
     display = @board.map  { |row| letters.shift + '|' + row.map {|tile| tile.occupied? ? color_icon(tile.piece) : '_'}.join('|') + '|' }
-    ["  1 2 3 4 5 6 7 8"] + display + ["_________________"]
+    ["  1 2 3 4 5 6 7 8"] + display + ["__________________"]
+  end
+
+  def piece_counter(color)
+    if color == "white"
+      @white_piece_count = []
+      @board.each do |row|
+        row.each do |tile|
+          tile.piece.color == color ? @white_piece_count << tile.piece
+        end
+      end
+    else
+      @black_piece_count = []
+      @board.each do |row|
+        row.each do |tile|
+          tile.piece.color == color ? @black_piece_count << tile.piece
+        end
+      end
+    end
   end
 
   private

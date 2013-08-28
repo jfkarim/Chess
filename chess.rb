@@ -83,9 +83,6 @@ class Chess
     temp = @game_board[origin[0], origin[1]].piece.dup
     @game_board[destination[0], destination[1]].piece = temp
     @game_board[destination[0], destination[1]].piece.set_loc(destination)
-    puts "Dest: #{@game_board[origin[0], origin[1]].piece}"
-    puts "Should equal below: #{@game_board[destination[0], destination[1]].piece}"
-    puts "New starting position is #{@game_board[destination[0], destination[1]].piece.start_pos}"
     @game_board[origin[0], origin[1]].piece = nil
   end
 
@@ -108,34 +105,42 @@ class Chess
     type = piece.type
 
     case type
+
     when 'Q'
       collision_check_vertical(piece) +
       collision_check_diagonal(piece) +
       collision_check_horizontal(piece) &
       raw_possible_moves
+
     when 'K'
       collision_check_vertical(piece) +
       collision_check_diagonal(piece) +
       collision_check_horizontal(piece) &
       raw_possible_moves
+
     when 'R'
       collision_check_vertical(piece) +
       collision_check_horizontal(piece) &
       raw_possible_moves
+
     when 'B'
       collision_check_diagonal(piece) &
       raw_possible_moves
+
+    when 'N'
+      raw_possible_moves.select do |coord|
+        !game_board[coord[0], coord[1]].occupied_by_teammate?(piece.color)
+      end
+
     when 'p'
       attack_moves = pawn_move(piece)
-      p "attack_moves is: #{attack_moves}"
-      p "diagonal check is: #{collision_check_diagonal(piece)}"
-      p "vertical check is: #{collision_check_vertical(piece)}"
-      p "raw moves is: #{raw_possible_moves}"
       (collision_check_diagonal(piece) + collision_check_vertical(piece)) &
       (raw_possible_moves + attack_moves)
     end
 
   end
+
+
 
   def pawn_move(piece)
     current_position = piece.start_pos
@@ -310,6 +315,13 @@ class Chess
     #p "possible_move is  #{possible_move}"
     (0..7).to_a.include?(possible_move[0]) && (0..7).to_a.include?(possible_move[1])
   end
+
+  def in_check?
+
+  end
+
+  def threatened_by_opponent
+
 
   private
 
