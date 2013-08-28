@@ -37,13 +37,13 @@ class HumanPlayer #< Player
   end
 
   def get_origin
-    puts "Where would you like to move your piece from?"
+    puts "#{name}, Where would you like to move your piece from?"
     coord = gets.chomp.upcase
     coord =~ /[A-H][1-8]/ ? grid_hash[coord] : get_origin
   end
 
   def get_destination
-    puts "Where would you like to move to?"
+    puts "#{name}, Where would you like to move to?"
     coord = gets.chomp.upcase
     coord =~ /[A-H][1-8]/ ? grid_hash[coord] : get_destination
   end

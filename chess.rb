@@ -67,12 +67,20 @@ class Chess
     origin, destination = current_player.request_inputs
     chosen_tile = @game_board[origin[0], origin[1]]
 
+    p "in_check call before boolean loop in move:"
+    p in_check?(current_player, game_board)
 
-    if valid?(origin, destination, chosen_tile) && !end_turn_in_check?(current_player.color, origin, destination)
-      make_move(origin, destination)
-    else
-      puts "You cannot end your turn in check.  Please make another move, #{current_player.name}."
+
+    if !valid?(origin, destination, chosen_tile)
+      puts "Invalid move, try again."
       move
+     elsif !end_turn_in_check?(current_player.color, origin, destination)
+       puts "You cannot end your turn in check.  Please make another move, #{current_player.name}."
+       move
+    else
+      p "in_check call after boolean loop in move:"
+      p in_check?(current_player, game_board)
+      make_move(origin, destination)
     end
   end
 
@@ -319,42 +327,71 @@ class Chess
     (0..7).to_a.include?(possible_move[0]) && (0..7).to_a.include?(possible_move[1])
   end
 
-  def in_check?(current_player_color, game_board = game_board)
-    game_board.piece_counter
+  def in_check?(current_player_color, board = game_board)
+    board.piece_counter
     opponent_attack_moves = []
     if current_player_color == 'white'
-      game_board.black_piece_count.each do |piece|
+      board.black_piece_count.each do |piece|
         raw_moves = []
         raw_moves = piece.raw_possible_moves(piece.start_pos)
         opponent_attack_moves += valid_moves(raw_moves, piece)
       end
     else
-      game_board.white_piece_count.each do |piece|
+      board.white_piece_count.each do |piece|
         raw_moves = []
         raw_moves = piece.raw_possible_moves(piece.start_pos)
         opponent_attack_moves += valid_moves(raw_moves, piece)
       end
     end
 
-    king_pos = find_king(current_player_color)
+    king_pos = find_king(current_player_color, board)
+#    p "#{current_player.name}, your opponent attack moves:"
+ #   p opponent_attack_moves
 
+    # opponent_attack_moves.each do |move|
+    #   p "Piece_type:"
+    #   p board[move[0], move[1]].piece.type if board[move[0], move[1]].occupied?
+    #   p "location"
+    #   p move
+    # end
+#    p opponent_attack_moves.include?(king_pos)
     opponent_attack_moves.include?(king_pos)
   end
 
   def end_turn_in_check?(current_player_color, origin, destination)
-    debugger
+
     serialized_board = Marshal::dump(game_board)
     game_board_temp = Marshal::load(serialized_board)
     temp = game_board_temp[origin[0], origin[1]].piece.dup
-    game_board_temp[destination[0], destination[1]].piece = temp
-    game_board_temp[destination[0], destination[1]].piece.set_loc(destination)
-    game_board_temp[origin[0], origin[1]].piece = nil
-    in_check?(current_player_color, game_board_temp)
+
+    make_move(origin, destination)
+
+    if !in_check?(current_player_color, game_board)
+      return false
+    else
+      game_board = game_board_temp
+      return true
+    end
+
+    # p "theoretical destination"
+    # p destination
+    #
+    # p "actual destination"
+    # p game_board_temp[destination[0], destination[1]].piece.start_pos
+    #
+    # p "real board's state at destination"
+    # p game_board[destination[0], destination[1]].piece
+    #
+    #
+    #
+    # p game_board_temp[destination[0], destination[1]].piece.type
+    # p "in_check return:"
+
   end
 
 
-  def find_king(current_player_color)
-    game_board.board.each do |row|
+  def find_king(current_player_color, search_board = game_board)
+    search_board.board.each do |row|
       row.each do |tile|
         if tile.occupied?
           if tile.piece.type == 'K' && tile.piece.color == current_player_color
