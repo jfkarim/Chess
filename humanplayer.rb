@@ -1,12 +1,25 @@
 
 class HumanPlayer #< Player
 
-  attr_accessor :name, :attr_reader, :color
+  attr_accessor :name, :attr_reader, :color, :grid_hash
 
   def initialize (color = nil)
     self.name = get_name
     self.color = color
+    self.grid_hash = create_grid_hash
   end
+
+
+  def create_grid_hash
+    keys = (("A".."H").to_a * 8).sort.zip((1..8).to_a * 8).map { |key| key.join('') }
+
+    vals = (0...8).to_a.each_with_object([]) do | index1, array |
+      8.times do |index2| array << [index1, index2]
+      end
+    end
+    return Hash[keys.zip(vals)]
+  end
+
 
   def get_name
     puts "Please input your name:"
@@ -25,14 +38,14 @@ class HumanPlayer #< Player
 
   def get_origin
     puts "Where would you like to move your piece from?"
-    origin = gets.chomp
-    origin =~ /[1-8],[1-8]/ ? origin = origin.split(',').map { |int| int.to_i } : get_origin
+    coord = gets.chomp
+    coord =~ /[A-H][1-8]/ ? grid_hash[coord] : get_origin
   end
 
   def get_destination
     puts "Where would you like to move to?"
     destination = gets.chomp
-    destination =~ /[1-8],[1-8]/ ? destination = destination.split(',').map { |int| int.to_i }  : get_destination
+    destination =~ /[A-H][1-8]/ ? grid_hash[coord] : get_origin
   end
 
 end
