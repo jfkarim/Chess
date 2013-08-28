@@ -37,7 +37,6 @@ class Piece
     current_row, current_col = start_pos
 
     self.move_increments.each do |(d_row, d_col)|
-
       possible_move = [current_row + d_row, current_col + d_col]
 
       raw_possible_moves << possible_move if within_board?(possible_move)

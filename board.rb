@@ -26,7 +26,22 @@ class Board
                     'K' => [[7,3], [0,3]]
                   }
 
-  attr_accessor :black_piece_count, :white_piece_count, :threatened_by_white, :threatened_by_black
+  SYMBOL_HASH = {
+                  ['black','p'] => "\u{265F}",
+                  ['black','R'] => "\u{265C}",
+                  ['black','N'] => "\u{265E}",
+                  ['black','B'] => "\u{265D}",
+                  ['black','Q'] => "\u{265B}",
+                  ['black','K'] => "\u{265A}",
+                  ['white','p'] => "\u{2659}",
+                  ['white','R'] => "\u{2656}",
+                  ['white','B'] => "\u{2657}",
+                  ['white','N'] => "\u{2658}",
+                  ['white','Q'] => "\u{2655}",
+                  ['white','K'] => "\u{2654}"
+                 }
+
+  attr_accessor :black_piece_count, :white_piece_count,:threatened_by_white, :threatened_by_black, :board
 
   def initialize()
     @board = []
@@ -67,29 +82,27 @@ class Board
           value.each { |row, col| @board[row][col].piece = King.new([row, col], initial_color?(row)) }
        end
      end
-     piece_counter('black')
-     piece_counter('white')
+     piece_counter
    end
 
   def display_board
     letters = ('A'..'H').to_a
-    display = @board.map  { |row| letters.shift + '|' + row.map {|tile| tile.occupied? ? color_icon(tile.piece) : '_'}.join('|') + '|' }
-    ["  1 2 3 4 5 6 7 8"] + display + ["__________________"]
+    display = @board.map  { |row| letters.shift + '|' + row.map {|tile| tile.occupied? ? SYMBOL_HASH[[tile.piece.color, tile.piece.type]] : '_' } .join('|') + '|' }
+    display = ["  1 2 3 4 5 6 7 8"] + display + ["__________________"]
+    puts display
+    puts "Black piece count:"
+    puts @black_piece_count.length
+    puts "White piece count:"
+    puts @white_piece_count.length
   end
 
-  def piece_counter(color)
-    if color == "white"
-      @white_piece_count = []
-      @board.each do |row|
-        row.each do |tile|
-          tile.piece.color == color ? @white_piece_count << tile.piece
-        end
-      end
-    else
-      @black_piece_count = []
-      @board.each do |row|
-        row.each do |tile|
-          tile.piece.color == color ? @black_piece_count << tile.piece
+  def piece_counter
+    @black_piece_count = []
+    @white_piece_count = []
+    @board.each do |row|
+      row.each do |tile|
+        if tile.occupied?
+          tile.piece.color == "white" ? @white_piece_count << tile.piece : @black_piece_count << tile.piece
         end
       end
     end

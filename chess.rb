@@ -1,6 +1,4 @@
-
 require_relative 'humanplayer'
-
 require_relative 'board'
 require 'debugger'
 
@@ -58,18 +56,24 @@ class Chess
 
     @game_board.populate_board
     5.times {turn}
+ #   debugger
     5.times {turn}
   end
 
   def move
-    puts @game_board.display_board
-    request_coordinates = current_player.request_inputs
-    origin = request_coordinates[0]
-    destination = request_coordinates[1]
+    @game_board.display_board
+    puts "#{current_player.name}, you are in check." if in_check?(current_player.color)
+
+    origin, destination = current_player.request_inputs
     chosen_tile = @game_board[origin[0], origin[1]]
-    puts
-    puts "return of valid: #{valid?(origin, destination, chosen_tile)}"
-    valid?(origin, destination, chosen_tile) ? make_move(origin, destination) : move
+
+
+    if valid?(origin, destination, chosen_tile) && !end_turn_in_check?(current_player.color, origin, destination)
+      make_move(origin, destination)
+    else
+      puts "You cannot end your turn in check.  Please make another move, #{current_player.name}."
+      move
+    end
   end
 
   def turn
@@ -94,7 +98,7 @@ class Chess
       raw_possible_moves = piece.raw_possible_moves(origin)
 
 
-      if valid_moves(raw_possible_moves, piece).include? (destination)
+      if valid_moves(raw_possible_moves, piece).include?(destination)
         return true
       end
     end
@@ -139,7 +143,6 @@ class Chess
     end
 
   end
-
 
 
   def pawn_move(piece)
@@ -316,11 +319,51 @@ class Chess
     (0..7).to_a.include?(possible_move[0]) && (0..7).to_a.include?(possible_move[1])
   end
 
-  def in_check?
+  def in_check?(current_player_color, game_board = game_board)
+    game_board.piece_counter
+    opponent_attack_moves = []
+    if current_player_color == 'white'
+      game_board.black_piece_count.each do |piece|
+        raw_moves = []
+        raw_moves = piece.raw_possible_moves(piece.start_pos)
+        opponent_attack_moves += valid_moves(raw_moves, piece)
+      end
+    else
+      game_board.white_piece_count.each do |piece|
+        raw_moves = []
+        raw_moves = piece.raw_possible_moves(piece.start_pos)
+        opponent_attack_moves += valid_moves(raw_moves, piece)
+      end
+    end
 
+    king_pos = find_king(current_player_color)
+
+    opponent_attack_moves.include?(king_pos)
   end
 
-  def threatened_by_opponent
+  def end_turn_in_check?(current_player_color, origin, destination)
+    debugger
+    serialized_board = Marshal::dump(game_board)
+    game_board_temp = Marshal::load(serialized_board)
+    temp = game_board_temp[origin[0], origin[1]].piece.dup
+    game_board_temp[destination[0], destination[1]].piece = temp
+    game_board_temp[destination[0], destination[1]].piece.set_loc(destination)
+    game_board_temp[origin[0], origin[1]].piece = nil
+    in_check?(current_player_color, game_board_temp)
+  end
+
+
+  def find_king(current_player_color)
+    game_board.board.each do |row|
+      row.each do |tile|
+        if tile.occupied?
+          if tile.piece.type == 'K' && tile.piece.color == current_player_color
+            return tile.piece.start_pos
+          end
+        end
+      end
+    end
+  end
 
 
   private
@@ -333,7 +376,3 @@ end
 c = Chess.new
 c.set_players
 c.play
-# c.set_players
-# p c.player1.color
-# p c.player2.color
-# p c.current_player.color
