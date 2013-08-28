@@ -17,7 +17,7 @@ class Chess
   attr_accessor :game_board, :current_player, :player1, :player2
 
   def initialize ()
-    self.game_board = Board.new
+    @game_board = Board.new
     self.current_player = nil
     @player1 = nil
     @player2 = nil
@@ -62,26 +62,29 @@ class Chess
 
   def move
     @game_board.display_board
+    puts "#{current_player.name}, you have lost. checkmate...sucka." if check_mate?(current_player.color)
     puts "#{current_player.name}, you are in check." if in_check?(current_player.color)
+
+
+    serialized_board = Marshal::dump(@game_board)
+    game_board_temp = Marshal::load(serialized_board)
 
     origin, destination = current_player.request_inputs
     chosen_tile = @game_board[origin[0], origin[1]]
 
-    p "in_check call before boolean loop in move:"
-    p in_check?(current_player, game_board)
-
-
-    if !valid?(origin, destination, chosen_tile)
-      puts "Invalid move, try again."
-      move
-     elsif !end_turn_in_check?(current_player.color, origin, destination)
-       puts "You cannot end your turn in check.  Please make another move, #{current_player.name}."
-       move
-    else
-      p "in_check call after boolean loop in move:"
-      p in_check?(current_player, game_board)
+    if valid?(origin, destination, chosen_tile)
       make_move(origin, destination)
+      if in_check?(current_player.color)
+        puts "You cannot end your turn in check.  Please make another move, #{current_player.name}."
+        @game_board = game_board_temp
+        move
+      end
+    else
+      puts "Invalid move, try again."
+      @game_board = game_board_temp
+      move
     end
+
   end
 
   def turn
@@ -91,11 +94,11 @@ class Chess
 
   # METHODS RELATED TO MOVEMENT CALCULATION
 
-  def make_move(origin, destination)
-    temp = @game_board[origin[0], origin[1]].piece.dup
-    @game_board[destination[0], destination[1]].piece = temp
-    @game_board[destination[0], destination[1]].piece.set_loc(destination)
-    @game_board[origin[0], origin[1]].piece = nil
+  def make_move(origin, destination, board = @game_board)
+    temp = board[origin[0], origin[1]].piece.dup
+    board[destination[0], destination[1]].piece = temp
+    board[destination[0], destination[1]].piece.set_loc(destination)
+    board[origin[0], origin[1]].piece = nil
   end
 
   def valid?(origin, destination, tile)
@@ -164,7 +167,7 @@ class Chess
 
     attack_moves.select do |attack_move|
       within_board?(attack_move) &&
-      game_board[attack_move[0], attack_move[1]].occupied_by_enemy?(color)
+      @game_board[attack_move[0], attack_move[1]].occupied_by_enemy?(color)
     end
   end
   #Broke into directional collision_checks
@@ -179,20 +182,20 @@ class Chess
 
     row = piece.start_pos[0] + 1
 
-    until !within_board?([row, current_col]) || game_board[row, current_col].occupied?
-      tile = game_board[row,current_col]
+    until !within_board?([row, current_col]) || @game_board[row, current_col].occupied?
+      tile = @game_board[row,current_col]
       valids << [row,current_col]
       row += 1
-      valids << [row,current_col] if within_board?([row,current_col]) && game_board[row,current_col].occupied_by_enemy?(color)
+      valids << [row,current_col] if within_board?([row,current_col]) && @game_board[row,current_col].occupied_by_enemy?(color)
     end
 
     row = piece.start_pos[0] - 1
 
-    until !within_board?([row, current_col]) || game_board[row, current_col].occupied?
-      tile = game_board[row,current_col]
+    until !within_board?([row, current_col]) || @game_board[row, current_col].occupied?
+      tile = @game_board[row,current_col]
       valids << [row,current_col]
       row -= 1
-      valids << [row,current_col] if within_board?([row,current_col]) && game_board[row,current_col].occupied_by_enemy?(color)
+      valids << [row,current_col] if within_board?([row,current_col]) && @game_board[row,current_col].occupied_by_enemy?(color)
     end
 
     valids
@@ -208,21 +211,21 @@ class Chess
 
     col = piece.start_pos[1] + 1
 
-    until !within_board?([current_row,col]) || game_board[current_row, col].occupied?
-      tile = game_board[current_row,col]
+    until !within_board?([current_row,col]) || @game_board[current_row, col].occupied?
+      tile = @game_board[current_row,col]
       valids << [current_row,col] unless tile.occupied?
       col += 1
-      valids << [current_row,col] if within_board?([current_row,col]) && game_board[current_row,col].occupied_by_enemy?(color)
+      valids << [current_row,col] if within_board?([current_row,col]) && @game_board[current_row,col].occupied_by_enemy?(color)
     end
 
 
     col = piece.start_pos[1] - 1
 
-    until !within_board?([current_row,col]) || game_board[current_row, col].occupied?
-      tile = game_board[current_row,col]
+    until !within_board?([current_row,col]) || @game_board[current_row, col].occupied?
+      tile = @game_board[current_row,col]
       valids << [current_row,col] unless tile.occupied?
       col -= 1
-      valids << [current_row,col] if within_board?([current_row,col]) && game_board[current_row,col].occupied_by_enemy?(color)
+      valids << [current_row,col] if within_board?([current_row,col]) && @game_board[current_row,col].occupied_by_enemy?(color)
     end
 
     valids
@@ -238,19 +241,19 @@ class Chess
     col = piece.start_pos[1] + 1
 
     if within_board?([row,col])
-      if game_board[row,col].occupied_by_enemy?(color)
+      if @game_board[row,col].occupied_by_enemy?(color)
         valids << [row,col]
       end
     end
 
 
-    until !within_board?([row,col]) || game_board[row, col].occupied?
-      tile = game_board[row,col]
+    until !within_board?([row,col]) || @game_board[row, col].occupied?
+      tile = @game_board[row,col]
       valids << [row, col]
       row += 1
       col += 1
       if within_board?([row,col])
-        if game_board[row,col].occupied_by_enemy?(color)
+        if @game_board[row,col].occupied_by_enemy?(color)
           valids << [row,col]
         end
       end
@@ -260,18 +263,18 @@ class Chess
     col = piece.start_pos[1] - 1
 
     if within_board?([row,col])
-      if game_board[row,col].occupied_by_enemy?(color)
+      if @game_board[row,col].occupied_by_enemy?(color)
         valids << [row,col]
       end
     end
 
-    until !within_board?([row,col]) || game_board[row, col].occupied?
-      tile = game_board[row,col]
+    until !within_board?([row,col]) || @game_board[row, col].occupied?
+      tile = @game_board[row,col]
       valids << [row,col]
       row -= 1
       col -= 1
       if within_board?([row,col])
-        if game_board[row,col].occupied_by_enemy?(color)
+        if @game_board[row,col].occupied_by_enemy?(color)
           valids << [row,col]
         end
       end
@@ -281,18 +284,18 @@ class Chess
     col = piece.start_pos[1] - 1
 
     if within_board?([row,col])
-      if game_board[row,col].occupied_by_enemy?(color)
+      if @game_board[row,col].occupied_by_enemy?(color)
         valids << [row,col]
       end
     end
 
-    until !within_board?([row,col]) || game_board[row, col].occupied?
-      tile = game_board[row,col]
+    until !within_board?([row,col]) || @game_board[row, col].occupied?
+      tile = @game_board[row,col]
       valids << [row,col]
       row += 1
       col -= 1
       if within_board?([row,col])
-        if game_board[row,col].occupied_by_enemy?(color)
+        if @game_board[row,col].occupied_by_enemy?(color)
           valids << [row,col]
         end
       end
@@ -302,18 +305,18 @@ class Chess
     col = piece.start_pos[1] + 1
 
     if within_board?([row,col])
-      if game_board[row,col].occupied_by_enemy?(color)
+      if @game_board[row,col].occupied_by_enemy?(color)
         valids << [row,col]
       end
     end
 
-    until !within_board?([row,col]) || game_board[row, col].occupied?
-      tile = game_board[row,col]
+    until !within_board?([row,col]) || @game_board[row, col].occupied?
+      tile = @game_board[row,col]
       valids << [row,col]
       row -= 1
       col += 1
       if within_board?([row,col])
-        if game_board[row,col].occupied_by_enemy?(color)
+        if @game_board[row,col].occupied_by_enemy?(color)
           valids << [row,col]
         end
       end
@@ -327,10 +330,50 @@ class Chess
     (0..7).to_a.include?(possible_move[0]) && (0..7).to_a.include?(possible_move[1])
   end
 
-  def in_check?(current_player_color, board = game_board)
+  def check_mate? (current_player_color)
+    @game_board.piece_counter
+    possible_checks = []
+    possible_moves = []
+    if current_player_color == "white"
+      @game_board.white_piece_count.each do |piece|
+        raw_moves = piece.raw_possible_moves(piece.start_pos)
+        valid_moves(raw_moves, piece).each do |valid_move|
+          possible_moves << [piece.start_pos, valid_move]
+        end
+      end
+    else
+      @game_board.black_piece_count.each do |piece|
+        raw_moves = piece.raw_possible_moves(piece.start_pos)
+        valid_moves(raw_moves, piece).each do |valid_move|
+          possible_moves << [piece.start_pos, valid_move]
+        end
+      end
+    end
+    possible_moves.each do |move|
+      serialized_board = Marshal::dump(@game_board)
+      game_board_temp = Marshal::load(serialized_board)
+
+      origin, destination = move[0], move[1]
+      chosen_tile = @game_board[origin[0], origin[1]]
+      if valid?(origin, destination, chosen_tile)
+        make_move(origin, destination)
+        possible_checks << in_check?(current_player.color)
+        @game_board = game_board_temp
+      end
+
+    end
+
+    possible_checks.all?
+
+  end
+
+
+
+  def in_check?(current_player_color, board = @game_board)
     board.piece_counter
     opponent_attack_moves = []
     if current_player_color == 'white'
+      pieces = board.black_piece_count
       board.black_piece_count.each do |piece|
         raw_moves = []
         raw_moves = piece.raw_possible_moves(piece.start_pos)
@@ -358,39 +401,24 @@ class Chess
     opponent_attack_moves.include?(king_pos)
   end
 
-  def end_turn_in_check?(current_player_color, origin, destination)
-
-    serialized_board = Marshal::dump(game_board)
-    game_board_temp = Marshal::load(serialized_board)
-    temp = game_board_temp[origin[0], origin[1]].piece.dup
-
-    make_move(origin, destination)
-
-    if !in_check?(current_player_color, game_board)
-      return false
-    else
-      game_board = game_board_temp
-      return true
-    end
-
-    # p "theoretical destination"
-    # p destination
-    #
-    # p "actual destination"
-    # p game_board_temp[destination[0], destination[1]].piece.start_pos
-    #
-    # p "real board's state at destination"
-    # p game_board[destination[0], destination[1]].piece
-    #
-    #
-    #
-    # p game_board_temp[destination[0], destination[1]].piece.type
-    # p "in_check return:"
-
-  end
+  # def end_turn_in_check?(current_player_color, origin, destination)
+  #
+  #   serialized_board = Marshal::dump(game_board)
+  #   game_board_temp = Marshal::load(serialized_board)
+  #   temp = game_board_temp[origin[0], origin[1]].piece.dup
+  #
+  #   make_move(origin, destination)
+  #
+  #   if !in_check?(current_player_color, game_board)
+  #     return false
+  #   else
+  #     game_board = game_board_temp
+  #     return true
+  #   end
+  # end
 
 
-  def find_king(current_player_color, search_board = game_board)
+  def find_king(current_player_color, search_board = @game_board)
     search_board.board.each do |row|
       row.each do |tile|
         if tile.occupied?
