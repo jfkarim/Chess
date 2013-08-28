@@ -20,7 +20,4 @@ class Queen < Piece
 
 end
 
-q = Queen.new([0,0], 'white')
-
-p moves = q.raw_possible_moves(q.start_pos)
 

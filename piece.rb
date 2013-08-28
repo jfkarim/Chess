@@ -19,6 +19,10 @@ class Piece
     self.color = color
   end
 
+  def set_loc(pos)
+    self.start_pos = pos
+  end
+
   # def moved?
   #   self.moved
   # end
@@ -32,7 +36,7 @@ class Piece
 
     current_row, current_col = start_pos
 
-    move_increments.each do |(d_row, d_col)|
+    self.move_increments.each do |(d_row, d_col)|
 
       possible_move = [current_row + d_row, current_col + d_col]
 
@@ -43,7 +47,6 @@ class Piece
   end
 
   def within_board?(possible_move)
-    p "possible_move is  #{possible_move}"
     (0..7).to_a.include?(possible_move[0]) && (0..7).to_a.include?(possible_move[1])
   end
 

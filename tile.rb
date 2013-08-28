@@ -11,6 +11,13 @@ class Tile
     return !piece.nil?
   end
 
+  def occupied_by_enemy?(color)
+    return false if piece.nil?
+    piece.color != color
+  end
+
+
+
 
 
 end

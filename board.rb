@@ -68,8 +68,9 @@ class Board
    end
 
   def display_board
-    display = @board.map  { |row| '|' + row.map {|tile| tile.occupied? ? color_icon(tile.piece) : '_'}.join('|') + '|' }
-    ["_________________"] + display + ["_________________"]
+    letters = ('A'..'H').to_a
+    display = @board.map  { |row| letters.shift + '|' + row.map {|tile| tile.occupied? ? color_icon(tile.piece) : '_'}.join('|') + '|' }
+    ["  1 2 3 4 5 6 7 8"] + display + ["_________________"]
   end
 
   private
