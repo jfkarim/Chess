@@ -23,14 +23,6 @@ class Piece
     self.start_pos = pos
   end
 
-  # def moved?
-  #   self.moved
-  # end
-  #
-  # def =moved?(boolean)
-  #   self.moved? = boolean
-  # end
-
   def raw_possible_moves(start_pos)
     raw_possible_moves = []
 
@@ -40,8 +32,8 @@ class Piece
       possible_move = [current_row + d_row, current_col + d_col]
 
       raw_possible_moves << possible_move if within_board?(possible_move)
-      #need to check if pieces in way, pos move on board, and if king check
     end
+    
     raw_possible_moves
   end
 

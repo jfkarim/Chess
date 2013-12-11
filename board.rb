@@ -8,8 +8,6 @@ require_relative 'bishop'
 require_relative 'queen'
 require_relative 'king'
 
-
-
 class Board
 
   PIECE_INITIALS = {'p' => [[1,0], [1,1], [1,2], [1,3], [1,4], [1,5], [1,6], [1,7],
@@ -119,9 +117,3 @@ class Board
   end
 
 end
-
-# b = Board.new
-# t = Tile.new
-# t.piece = Pawn.new([1,1], "white")
-# puts t.piece
-# b.populate_board

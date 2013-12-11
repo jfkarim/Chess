@@ -21,6 +21,4 @@ class Tile
     piece.color == color
   end
 
-
-
 end

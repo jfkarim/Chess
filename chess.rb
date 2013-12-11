@@ -13,7 +13,6 @@ class Chess
 
   VERTICALS = (-7...8).to_a.map{ |row_coord| [row_coord, 0] }
 
-
   attr_accessor :game_board, :current_player, :player1, :player2
 
   def initialize ()
@@ -388,35 +387,8 @@ class Chess
     end
 
     king_pos = find_king(current_player_color, board)
-#    p "#{current_player.name}, your opponent attack moves:"
- #   p opponent_attack_moves
-
-    # opponent_attack_moves.each do |move|
-    #   p "Piece_type:"
-    #   p board[move[0], move[1]].piece.type if board[move[0], move[1]].occupied?
-    #   p "location"
-    #   p move
-    # end
-#    p opponent_attack_moves.include?(king_pos)
     opponent_attack_moves.include?(king_pos)
   end
-
-  # def end_turn_in_check?(current_player_color, origin, destination)
-  #
-  #   serialized_board = Marshal::dump(game_board)
-  #   game_board_temp = Marshal::load(serialized_board)
-  #   temp = game_board_temp[origin[0], origin[1]].piece.dup
-  #
-  #   make_move(origin, destination)
-  #
-  #   if !in_check?(current_player_color, game_board)
-  #     return false
-  #   else
-  #     game_board = game_board_temp
-  #     return true
-  #   end
-  # end
-
 
   def find_king(current_player_color, search_board = @game_board)
     search_board.board.each do |row|
